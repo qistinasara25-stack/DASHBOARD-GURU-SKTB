@@ -2,13 +2,13 @@ import streamlit as st
 import pandas as pd
 import ssl
 
-# --- 1. FIX MAC ---
+# --- 1. FIX MAC (Supaya tak error merah) ---
 try:
     ssl._create_default_https_context = ssl._create_unverified_context
 except AttributeError:
     pass
 
-# --- 2. TETAPAN ---
+# --- 2. TETAPAN HALAMAN ---
 st.set_page_config(page_title="Direktori Guru SKTB", page_icon="🏫", layout="wide")
 st.title("📸 Galeri Guru SKTB")
 st.write("Senarai guru berserta gambar profil.")
@@ -28,34 +28,31 @@ def load_data():
 
 df = load_data()
 
-# --- 4. PAPARAN KAD PROFIL (MENGGUNAKAN GRID) ---
+# --- 4. PAPARAN KAD PROFIL (DENGAN NO. IC) ---
 if df is not None:
-    # Kita buat butang Refresh
+    # Butang Refresh
     if st.button("🔄 Refresh Data"):
         st.cache_data.clear()
         st.rerun()
 
-    # Kita susun 3 kad dalam satu baris (row)
-    # Cikgu boleh tukar nombor 3 tu jadi 4 kalau nak lagi padat
+    # Susun 3 kad dalam satu baris
     cols = st.columns(3)
 
     for index, row in df.iterrows():
-        # Pilih column ikut giliran (0, 1, 2, ulang balik)
         col = cols[index % 3]
         
         with col:
-            # Buat kotak (container) cantik untuk setiap guru
             with st.container(border=True):
-                # 1. PAPAR GAMBAR
-                # Pastikan nama column dalam Excel ialah 'GAMBAR'
+                # A. GAMBAR
                 if 'GAMBAR' in row and pd.notna(row['GAMBAR']) and str(row['GAMBAR']).startswith('http'):
                     st.image(row['GAMBAR'], use_container_width=True)
                 else:
-                    # Kalau tak ada gambar, letak icon orang lidi
                     st.write("👤 Tiada Foto")
 
-                # 2. PAPAR MAKLUMAT
+                # B. MAKLUMAT (Saya dah tambah No. IC di sini)
                 st.subheader(row['NAMA GURU'])
-                st.caption(f"**Jawatan:** {row.get('JAWATAN', '-')}")
-                st.text(f"Gred: {row.get('GRED', '-')}")
-                # st.text(f"IC: {row.get('NO KAD PENGENALAN', '-')}") # Boleh 'uncomment' kalau nak tunjuk IC
+                st.write(f"**Jawatan:** {row.get('JAWATAN', '-')}")
+                st.write(f"**Gred:** {row.get('GRED', '-')}")
+                
+                # INI BARIS BARU YANG SAYA TAMBAH:
+                st.code(f"IC: {row.get('NO KAD PENGENALAN', '-')}")
